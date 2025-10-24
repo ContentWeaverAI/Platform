@@ -1,0 +1,28 @@
+{
+  "kind": "singleType",
+  "collectionName": "heroes",
+  "info": {
+    "singularName": "hero",
+    "pluralName": "heroes",
+    "displayName": "Hero Section",
+    "description": "Main homepage hero section"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "headline": {
+      "type": "string",
+      "required": true,
+      "default": "Swabian Consulting UG"
+    },
+    "subheadline": {
+      "type": "string",
+      "default": "Your trusted business partners"
+    },
+    "ctaButton": {
+      "type": "string",
+      "default": "Get Free Consultation"
+    }
+  }
+}
