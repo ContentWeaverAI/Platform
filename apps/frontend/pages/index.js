@@ -1,18 +1,21 @@
 import Head from 'next/head'
+import Header from '../src/components/layout/header'
 
 export default function Home() {
   return (
     <>
       <Head>
-        <title>ContentWeaverAI</title>
+        <title>ContentWeaver - AI-Powered Content Management</title>
       </Head>
-      
-      <div style={{ padding: '2rem', fontFamily: 'Arial' }}>
-        <h1>ContentWeaverAI</h1>
-        <p>Update your website through AI conversation</p>
-        <button style={{ background: 'blue', color: 'white', padding: '10px' }}>
-          Start Chatting
-        </button>
+
+      <div className="min-h-screen bg-white">
+        <Header />
+        <main className="pt-16">
+          {/* We'll add Hero component next */}
+          <div className="h-screen flex items-center justify-center">
+            <p className="text-gray-500">Hero section coming next...</p>
+          </div>
+        </main>
       </div>
     </>
   )
