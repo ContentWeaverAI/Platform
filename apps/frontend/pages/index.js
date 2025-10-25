@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Header from '../src/components/layout/header'
+import Hero from '../src/components/sections/hero'
 
 export default function Home() {
   return (
@@ -10,11 +11,9 @@ export default function Home() {
 
       <div className="min-h-screen bg-white">
         <Header />
-        <main className="pt-16">
-          {/* We'll add Hero component next */}
-          <div className="h-screen flex items-center justify-center">
-            <p className="text-gray-500">Hero section coming next...</p>
-          </div>
+        <main>
+          <Hero />
+          {/* We'll add more sections next */}
         </main>
       </div>
     </>
