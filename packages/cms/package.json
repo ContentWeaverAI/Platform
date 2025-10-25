@@ -1,8 +1,8 @@
 {
-  "name": "@contentflow/cms",
-  "version": "1.0.0", 
+  "name": "@contentweaver/cms",
+  "version": "1.0.0",
   "private": true,
-  "description": "ContentFlow Headless CMS",
+  "description": "contentweaver Headless CMS",
   "scripts": {
     "develop": "strapi develop",
     "start": "strapi start",
@@ -10,9 +10,14 @@
     "strapi": "strapi"
   },
   "dependencies": {
-    "@strapi/strapi": "^4.14.0",
+    "@strapi/plugin-i18n": "^4.14.0",
     "@strapi/plugin-users-permissions": "^4.14.0",
-    "@strapi/plugin-i18n": "^4.14.0"
+    "@strapi/strapi": "^4.14.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^5.3.4",
+    "sqlite3": "^5.1.7",
+    "styled-components": "^5.3.11"
   },
   "engines": {
     "node": ">=18.0.0"

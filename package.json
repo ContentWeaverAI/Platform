@@ -1,15 +1,17 @@
 {
-  "name": "contentflow-platform",
+  "name": "contentweaver-platform",
   "version": "1.0.0",
   "private": true,
-  "workspaces": [
+  "// workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
-    "dev": "echo 'Run: npm run dev --workspace=apps/frontend'",
-    "build": "npm run build --workspace=apps/frontend",
-    "dev:cms": "npm run develop --workspace=packages/cms"
+    "dev": "npm run dev --workspace=apps/frontend",
+    "dev:frontend": "npm run dev --workspace=apps/frontend",
+    "dev:cms": "npm run develop --workspace=packages/cms",
+    "dev:all": "concurrently \"npm run dev:frontend\" \"npm run dev:cms\"",
+    "build": "npm run build --workspace=apps/frontend"
   },
   "engines": {
     "node": ">=18.0.0"
