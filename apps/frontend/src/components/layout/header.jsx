@@ -57,7 +57,10 @@ export default function Header() {
             <button className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
               Sign In
             </button>
-            <button className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors">
+            <button 
+              onClick={() => window.location.href = '/chat'}
+              className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            >
               Get Started
             </button>
           </div>
