@@ -6,6 +6,7 @@ import Features from '../src/components/sections/features'
 import Demo from '../src/components/sections/demo'
 import Pricing from '../src/components/sections/pricing'
 import Footer from '../src/components/layout/footer'
+import ChatInterface from '../src/components/chat/chat-interface'
 
 export default function Home() {
   return (
@@ -24,6 +25,7 @@ export default function Home() {
           <Pricing />
         </main>
         <Footer />
+        <ChatInterface />
       </div>
     </>
   )
