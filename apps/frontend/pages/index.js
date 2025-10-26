@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Header from '../src/components/layout/header'
 import Hero from '../src/components/sections/hero'
 import HowItWorks from '../src/components/sections/how-it-works'
+import Features from '../src/components/sections/features'
 
 export default function Home() {
   return (
@@ -15,7 +16,7 @@ export default function Home() {
         <main>
           <Hero />
           <HowItWorks />
-          {/* More sections coming next */}
+          <Features />
         </main>
       </div>
     </>
