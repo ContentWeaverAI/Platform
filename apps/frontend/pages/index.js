@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Header from '../src/components/layout/header'
 import Hero from '../src/components/sections/hero'
+import HowItWorks from '../src/components/sections/how-it-works'
 
 export default function Home() {
   return (
@@ -13,7 +14,8 @@ export default function Home() {
         <Header />
         <main>
           <Hero />
-          {/* We'll add more sections next */}
+          <HowItWorks />
+          {/* More sections coming next */}
         </main>
       </div>
     </>
