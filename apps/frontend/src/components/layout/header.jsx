@@ -1,4 +1,20 @@
+'use client'
+import { useState } from 'react'
+
 export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      })
+    }
+    setIsMenuOpen(false)
+  }
+
   return (
     <header className="fixed top-0 w-full bg-white border-b border-gray-200 z-50">
       <div className="max-w-7xl mx-auto px-6">
@@ -8,17 +24,32 @@ export default function Header() {
             <span className="text-2xl font-bold text-gray-900">ContentWeaver</span>
           </div>
           
-          {/* Navigation */}
+          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <a href="#solutions" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-              Solutions
-            </a>
-            <a href="#pricing" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
+            <button 
+              onClick={() => scrollToSection('how-it-works')}
+              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            >
+              How It Works
+            </button>
+            <button 
+              onClick={() => scrollToSection('features')}
+              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            >
+              Features
+            </button>
+            <button 
+              onClick={() => scrollToSection('demo')}
+              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            >
+              Examples
+            </button>
+            <button 
+              onClick={() => scrollToSection('pricing')}
+              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+            >
               Pricing
-            </a>
-            <a href="#customers" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-              Customers
-            </a>
+            </button>
           </nav>
           
           {/* CTA Buttons */}
@@ -30,7 +61,49 @@ export default function Header() {
               Get Started
             </button>
           </div>
+
+          {/* Mobile menu button */}
+          <button 
+            className="md:hidden"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
+
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-200 py-4">
+            <div className="flex flex-col space-y-4">
+              <button 
+                onClick={() => scrollToSection('how-it-works')}
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-left"
+              >
+                How It Works
+              </button>
+              <button 
+                onClick={() => scrollToSection('features')}
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-left"
+              >
+                Features
+              </button>
+              <button 
+                onClick={() => scrollToSection('demo')}
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-left"
+              >
+                Examples
+              </button>
+              <button 
+                onClick={() => scrollToSection('pricing')}
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-left"
+              >
+                Pricing
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </header>
   )
