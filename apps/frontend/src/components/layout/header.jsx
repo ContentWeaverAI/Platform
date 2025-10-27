@@ -1,8 +1,10 @@
 'use client'
 import { useState } from 'react'
+import LoginModal from '../auth/login-modal'
 
 export default function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isLoggedIn, setIsLoggedIn] = useState(false) // TODO: Replace with real auth state
 
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId)
@@ -12,102 +14,97 @@ export default function Header() {
         block: 'start'
       })
     }
-    setIsMenuOpen(false)
+  }
+
+  const handleGetStarted = () => {
+    if (isLoggedIn) {
+      window.location.href = '/account'
+    } else {
+      setIsLoginModalOpen(true)
+    }
+  }
+
+  const handleSwitchToRegister = () => {
+    setIsLoginModalOpen(false)
+    window.location.href = '/auth/register'
   }
 
   return (
-    <header className="fixed top-0 w-full bg-white border-b border-gray-200 z-50">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <span className="text-2xl font-bold text-gray-900">ContentWeaver</span>
-          </div>
-          
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <button 
-              onClick={() => scrollToSection('how-it-works')}
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-            >
-              How It Works
-            </button>
-            <button 
-              onClick={() => scrollToSection('features')}
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-            >
-              Features
-            </button>
-            <button 
-              onClick={() => scrollToSection('demo')}
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-            >
-              Examples
-            </button>
-            <button 
-              onClick={() => scrollToSection('pricing')}
-              className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
-            >
-              Pricing
-            </button>
-          </nav>
-          
-          {/* CTA Buttons */}
-          <div className="flex items-center space-x-4">
-            <button className="text-gray-600 hover:text-gray-900 font-medium transition-colors">
-              Sign In
-            </button>
-            <button 
-              onClick={() => window.location.href = '/chat'}
-              className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
-              Get Started
-            </button>
-          </div>
-
-          {/* Mobile menu button */}
-          <button 
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="md:hidden bg-white border-t border-gray-200 py-4">
-            <div className="flex flex-col space-y-4">
+    <>
+      <header className="fixed top-0 w-full bg-white border-b border-gray-200 z-40">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo */}
+            <div className="flex items-center">
+              <a href="/" className="text-2xl font-bold text-gray-900">ContentWeaver</a>
+            </div>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-8">
               <button 
                 onClick={() => scrollToSection('how-it-works')}
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-left"
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
               >
                 How It Works
               </button>
               <button 
                 onClick={() => scrollToSection('features')}
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-left"
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
               >
                 Features
               </button>
               <button 
                 onClick={() => scrollToSection('demo')}
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-left"
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
               >
                 Examples
               </button>
               <button 
                 onClick={() => scrollToSection('pricing')}
-                className="text-gray-600 hover:text-gray-900 font-medium transition-colors text-left"
+                className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
               >
                 Pricing
               </button>
+            </nav>
+            
+            {/* CTA Buttons - Dynamic based on auth state */}
+            <div className="flex items-center space-x-4">
+              {isLoggedIn ? (
+                // Logged in state
+                <button 
+                  onClick={() => window.location.href = '/account'}
+                  className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                >
+                  Account
+                </button>
+              ) : (
+                // Logged out state
+                <>
+                  <button 
+                    onClick={() => setIsLoginModalOpen(true)}
+                    className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
+                  >
+                    Sign In
+                  </button>
+                  <button 
+                    onClick={handleGetStarted}
+                    className="bg-blue-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                  >
+                    Get Started
+                  </button>
+                </>
+              )}
             </div>
           </div>
-        )}
-      </div>
-    </header>
+        </div>
+      </header>
+
+      {/* Login Modal */}
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)}
+        onSwitchToRegister={handleSwitchToRegister}
+      />
+    </>
   )
 }
