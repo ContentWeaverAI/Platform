@@ -25,18 +25,36 @@ export default function ChatPage() {
     setIsLoading(true)
     
     try {
-      // Simulate AI response
-      setTimeout(() => {
-        const aiResponse = {
-          role: 'assistant',
-          content: `I understand you want to: "${input}". I can help update your website content through the Strapi API. This is where the real AI magic would happen!`
-        }
-        setCurrentConversation(prev => [...prev, aiResponse])
-        setIsLoading(false)
-      }, 1500)
+      // Real API call to DeepSeek
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: input }),
+      })
+
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to get AI response')
+      }
+
+      const aiResponse = {
+        role: 'assistant',
+        content: data.response
+      }
+      
+      setCurrentConversation(prev => [...prev, aiResponse])
       
     } catch (error) {
       console.error('Chat error:', error)
+      const errorResponse = {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error. Please try again in a moment.'
+      }
+      setCurrentConversation(prev => [...prev, errorResponse])
+    } finally {
       setIsLoading(false)
     }
   }
@@ -85,7 +103,7 @@ export default function ChatPage() {
           <div className="p-4 border-t border-gray-200">
             <a 
               href="/"
-              className="w-full bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
+              className="w-full bg-gray-100 text-white py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors flex items-center justify-center gap-2"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
@@ -100,7 +118,7 @@ export default function ChatPage() {
           {/* Chat Header */}
           <div className="bg-white border-b border-gray-200 p-4 flex justify-between items-center">
             <h1 className="text-xl font-semibold text-gray-900">ContentWeaver AI</h1>
-            <div className="text-sm text-gray-500">Website Content Assistant</div>
+            <div className="text-sm text-gray-500">Powered by DeepSeek AI</div>
           </div>
 
           {/* Messages Area */}
