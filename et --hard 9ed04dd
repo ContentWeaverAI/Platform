@@ -1,0 +1,33 @@
+[33mc3c1423[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m fix: update header with auth buttons and add login modal
+[33m9ed04dd[m feat: implement complete hybrid authentication system
+[33m600d65f[m feat: add full ChatGPT-style chat page accessible from Get Started button
+[33m3cd2d4e[m feat: add OpenAI-style chatbot interface foundation
+[33m2ab78ae[m feat: add smooth scrolling navigation and mobile menu
+[33me4eb79e[m feat: add Demo section with real use case examples
+[33mef032f7[m feat: add professional footer to complete the site
+[33md919ed6[m feat: add Pricing section with three-tier plans
+[33m60479c0[m feat: add Features section showing update capabilities
+[33m1842499[m feat: add How It Works section with 3-step process
+[33m82bc404[m feat: add Truework-inspired hero section
+[33m9515ec7[m feat: add Truework-inspired header component
+[33m3e36e0d[m fix: downgrade tailwind to v3 and fix build issues
+[33m767f7db[m refactor: implement professional component architecture with kebab-case file naming
+[33m519ef43[m feat: implement OpenAI-style professional design with AI chat interface
+[33m82334b1[m refactor: complete rebrand to ContentWeaverAI platform
+[33m83e71fc[m Create schema.json
+[33m9b2201b[m Create index.js
+[33m8f33386[m Create .env
+[33mbdcd5f0[m Create server.js
+[33m9de54db[m Create database.js
+[33meaaa19a[m Create package.json
+[33m4c52396[m Update package.json
+[33m6c684ae[m Update package.json
+[33m80da246[m Update package.json
+[33mbfd9de4[m Create package.json
+[33m155d447[m Rename pages/index.js to apps/frontend/pages/index.js
+[33m8bef669[m Rename package.json to apps/frontend/package.json
+[33m5460187[m Rename apps/frontend/.gitignore to .gitignore
+[33m1443546[m Rename .gitignore to apps/frontend/.gitignore
+[33m85b5977[m Create index.js
+[33mac15059[m Create package.json
+[33mb680795[m Initial commit
