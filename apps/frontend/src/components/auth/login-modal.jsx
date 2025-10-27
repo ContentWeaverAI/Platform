@@ -4,6 +4,7 @@ import { useState } from 'react'
 export default function LoginModal({ isOpen, onClose }) {
   const [isLoading, setIsLoading] = useState(false)
   const [currentView, setCurrentView] = useState('login') // 'login' or 'register'
+  const [hasSwitchedViews, setHasSwitchedViews] = useState(false) // Track if user has switched
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -44,6 +45,7 @@ export default function LoginModal({ isOpen, onClose }) {
         alert('Registration successful! Please check your email to verify your account.')
         setCurrentView('login')
         setFormData({ email: '', password: '', confirmPassword: '', acceptPrivacy: false })
+        setHasSwitchedViews(false) // Reset when registration completes
       } else {
         // Login success - redirect to account
         onClose()
@@ -54,6 +56,7 @@ export default function LoginModal({ isOpen, onClose }) {
 
   const switchView = (view) => {
     setCurrentView(view)
+    setHasSwitchedViews(true) // Mark that user has switched views
     setFormData({ email: '', password: '', confirmPassword: '', acceptPrivacy: false })
   }
 
@@ -136,7 +139,7 @@ export default function LoginModal({ isOpen, onClose }) {
             </div>
           )}
 
-          {/* Privacy Policy Checkbox (Registration only) - REQUIRED for Germany */}
+          {/* Privacy Policy Checkbox (Registration only) */}
           {currentView === 'register' && (
             <div className="flex items-start space-x-3">
               <input
@@ -169,26 +172,28 @@ export default function LoginModal({ isOpen, onClose }) {
             }
           </button>
 
-          {/* Switch View - INTERNAL TRANSFORMATION, no page navigation */}
-          <div className="text-center">
-            {currentView === 'login' ? (
-              <button
-                type="button"
-                onClick={() => switchView('register')}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                Don't have an account? Sign up
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => switchView('login')}
-                className="text-blue-600 hover:text-blue-700 text-sm font-medium"
-              >
-                Already have an account? Sign in
-              </button>
-            )}
-          </div>
+          {/* Switch View - Only show if user hasn't switched yet */}
+          {!hasSwitchedViews && (
+            <div className="text-center">
+              {currentView === 'login' ? (
+                <button
+                  type="button"
+                  onClick={() => switchView('register')}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                >
+                  Don't have an account? Sign up
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => switchView('login')}
+                  className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                >
+                  Already have an account? Sign in
+                </button>
+              )}
+            </div>
+          )}
 
           {/* Datenschutz Notice */}
           <div className="text-center">
