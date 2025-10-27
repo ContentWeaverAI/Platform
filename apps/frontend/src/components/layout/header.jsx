@@ -3,7 +3,7 @@ import { useState } from 'react'
 import LoginModal from '../auth/login-modal'
 
 export default function Header() {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false) // TODO: Replace with real auth state
 
   const scrollToSection = (sectionId) => {
@@ -20,13 +20,8 @@ export default function Header() {
     if (isLoggedIn) {
       window.location.href = '/account'
     } else {
-      setIsLoginModalOpen(true)
+      setIsAuthModalOpen(true)
     }
-  }
-
-  const handleSwitchToRegister = () => {
-    setIsLoginModalOpen(false)
-    window.location.href = '/auth/register'
   }
 
   return (
@@ -81,7 +76,7 @@ export default function Header() {
                 // Logged out state
                 <>
                   <button 
-                    onClick={() => setIsLoginModalOpen(true)}
+                    onClick={() => setIsAuthModalOpen(true)}
                     className="text-gray-600 hover:text-gray-900 font-medium transition-colors"
                   >
                     Sign In
@@ -99,11 +94,10 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Login Modal */}
+      {/* Single Auth Modal for both login and registration */}
       <LoginModal 
-        isOpen={isLoginModalOpen} 
-        onClose={() => setIsLoginModalOpen(false)}
-        onSwitchToRegister={handleSwitchToRegister}
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)}
       />
     </>
   )
