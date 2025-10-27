@@ -30,7 +30,6 @@ export default function LoginModal({ isOpen, onClose }) {
       
       console.log('Registering:', { email: formData.email })
       // TODO: Connect to Strapi registration API
-      // This will send verification email
     } else {
       // Login
       console.log('Logging in:', { email: formData.email })
@@ -137,7 +136,7 @@ export default function LoginModal({ isOpen, onClose }) {
             </div>
           )}
 
-          {/* Privacy Policy Checkbox (Registration only) */}
+          {/* Privacy Policy Checkbox (Registration only) - REQUIRED for Germany */}
           {currentView === 'register' && (
             <div className="flex items-start space-x-3">
               <input
@@ -150,10 +149,10 @@ export default function LoginModal({ isOpen, onClose }) {
               />
               <label htmlFor="privacy" className="text-sm text-gray-600">
                 I accept the{' '}
-                <a href="/privacy" className="text-blue-600 hover:text-blue-700 underline">
+                <a href="/privacy" target="_blank" className="text-blue-600 hover:text-blue-700 underline">
                   Privacy Policy
                 </a>{' '}
-                and agree to the processing of my data according to GDPR
+                and agree to the processing of my data according to GDPR/DSGVO
               </label>
             </div>
           )}
@@ -170,7 +169,7 @@ export default function LoginModal({ isOpen, onClose }) {
             }
           </button>
 
-          {/* Switch View */}
+          {/* Switch View - INTERNAL TRANSFORMATION, no page navigation */}
           <div className="text-center">
             {currentView === 'login' ? (
               <button
@@ -194,7 +193,7 @@ export default function LoginModal({ isOpen, onClose }) {
           {/* Datenschutz Notice */}
           <div className="text-center">
             <p className="text-xs text-gray-500">
-              Your data is protected according to German Datenschutz (GDPR) regulations
+              Your data is protected according to German Datenschutz (GDPR/DSGVO) regulations
             </p>
           </div>
         </form>
