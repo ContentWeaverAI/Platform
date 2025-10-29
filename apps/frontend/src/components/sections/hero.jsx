@@ -3,131 +3,89 @@ import { useState, useEffect } from 'react';
 
 export default function Hero() {
   const [heroData, setHeroData] = useState(null);
-  const [animationStep, setAnimationStep] = useState(0);
+  const [currentDemo, setCurrentDemo] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
-  const [websiteContent, setWebsiteContent] = useState('');
-  const [isUpdated, setIsUpdated] = useState(false);
-  const [animationCycle, setAnimationCycle] = useState(0);
-  const [currentSequence, setCurrentSequence] = useState(null);
+  const [currentStep, setCurrentStep] = useState(0);
 
   // Fetch hero content from Strapi
   useEffect(() => {
     const fetchHeroData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/Hero-content`, {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
+        const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/Hero-content`);
         const data = await response.json();
-        
         if (Array.isArray(data) && data.length > 0) {
           setHeroData(data[0]);
-          // Set initial sequence
-          const sequences = [
-            {
-              userMessage: data[0].demoUserMessage,
-              aiResponse: data[0].demoAIResponse,
-              beforeText: data[0].demoBeforeText,
-              afterText: data[0].demoAfterText
-            },
-            {
-              userMessage: data[0].demo2UserMessage,
-              aiResponse: data[0].demo2AIResponse,
-              beforeText: data[0].demo2BeforeText,
-              afterText: data[0].demo2AfterText
-            }
-          ];
-          setCurrentSequence(sequences[0]);
-          setWebsiteContent(data[0].demoBeforeText);
         }
       } catch (error) {
         console.error('Error fetching hero data:', error);
       }
     };
-
     fetchHeroData();
   }, []);
 
-  // Animation sequence
+  // Simple animation loop
   useEffect(() => {
-    if (!heroData || !currentSequence) return;
+    if (!heroData) return;
 
-    const steps = [
-      { text: currentSequence.userMessage, type: 'user', delay: 1000 },
-      { text: currentSequence.aiResponse, type: 'ai', delay: 2000 },
-      { text: currentSequence.beforeText, type: 'website-before', delay: 1000 },
-      { text: currentSequence.afterText, type: 'website-after', delay: 5000 } // 5 seconds for final display
+    const demos = [
+      {
+        user: heroData.demoUserMessage,
+        ai: heroData.demoAIResponse,
+        before: heroData.demoBeforeText,
+        after: heroData.demoAfterText
+      },
+      {
+        user: heroData.demo2UserMessage,
+        ai: heroData.demo2AIResponse,
+        before: heroData.demo2BeforeText,
+        after: heroData.demo2AfterText
+      }
     ];
 
-    const currentStep = steps[animationStep];
+    const demo = demos[currentDemo];
+    const steps = [
+      // Step 0: Show user message
+      { type: 'user', text: demo.user, duration: 2000 },
+      // Step 1: Show AI response  
+      { type: 'ai', text: demo.ai, duration: 2000 },
+      // Step 2: Show website before
+      { type: 'website', text: demo.before, duration: 2000, updated: false },
+      // Step 3: Show website after
+      { type: 'website', text: demo.after, duration: 4000, updated: true }
+    ];
+
+    const step = steps[currentStep];
+    setDisplayedText('');
     
-    if (!currentStep) {
-      // Switch to next sequence and reset
-      const sequences = [
-        {
-          userMessage: heroData.demoUserMessage,
-          aiResponse: heroData.demoAIResponse,
-          beforeText: heroData.demoBeforeText,
-          afterText: heroData.demoAfterText
-        },
-        {
-          userMessage: heroData.demo2UserMessage,
-          aiResponse: heroData.demo2AIResponse,
-          beforeText: heroData.demo2BeforeText,
-          afterText: heroData.demo2AfterText
-        }
-      ];
-      
-      const nextCycle = (animationCycle + 1) % sequences.length;
-      setAnimationCycle(nextCycle);
-      setCurrentSequence(sequences[nextCycle]);
-      setWebsiteContent(sequences[nextCycle].beforeText);
-      setIsUpdated(false);
-      setDisplayedText('');
-      setTimeout(() => setAnimationStep(0), 1000);
-      return;
-    }
-
-    // Handle website content and color states
-    if (currentStep.type === 'website-after') {
-      setWebsiteContent(currentSequence.afterText);
-      setIsUpdated(true);
-    } else if (currentStep.type === 'website-before') {
-      setWebsiteContent(currentSequence.beforeText);
-      setIsUpdated(false);
-    }
-
     // Typewriter effect for chat messages
-    if (currentStep.type === 'user' || currentStep.type === 'ai') {
-      let currentIndex = 0;
-      setDisplayedText('');
-      
-      const typeInterval = setInterval(() => {
-        if (currentIndex < currentStep.text.length) {
-          setDisplayedText(currentStep.text.slice(0, currentIndex + 1));
-          currentIndex++;
+    if (step.type === 'user' || step.type === 'ai') {
+      let i = 0;
+      const timer = setInterval(() => {
+        if (i < step.text.length) {
+          setDisplayedText(step.text.slice(0, i + 1));
+          i++;
         } else {
-          clearInterval(typeInterval);
+          clearInterval(timer);
           setTimeout(() => {
-            setAnimationStep(prev => prev + 1);
-          }, currentStep.delay);
+            setCurrentStep((prev) => (prev + 1) % steps.length);
+            if (currentStep === steps.length - 1) {
+              setCurrentDemo((prev) => (prev + 1) % demos.length);
+            }
+          }, step.duration);
         }
       }, 50);
-
-      return () => clearInterval(typeInterval);
+      return () => clearInterval(timer);
     } else {
-      // Website steps - just wait and move to next
+      // Website content appears instantly
+      setDisplayedText(step.text);
       setTimeout(() => {
-        setAnimationStep(prev => prev + 1);
-      }, currentStep.delay);
+        setCurrentStep((prev) => (prev + 1) % steps.length);
+        if (currentStep === steps.length - 1) {
+          setCurrentDemo((prev) => (prev + 1) % demos.length);
+        }
+      }, step.duration);
     }
-  }, [animationStep, heroData, currentSequence, animationCycle]);
+  }, [currentStep, currentDemo, heroData]);
 
   if (!heroData) {
     return (
@@ -145,6 +103,35 @@ export default function Hero() {
       </section>
     );
   }
+
+  const demos = [
+    {
+      user: heroData.demoUserMessage,
+      ai: heroData.demoAIResponse, 
+      before: heroData.demoBeforeText,
+      after: heroData.demoAfterText
+    },
+    {
+      user: heroData.demo2UserMessage,
+      ai: heroData.demo2AIResponse,
+      before: heroData.demo2BeforeText,
+      after: heroData.demo2AfterText
+    }
+  ];
+
+  const demo = demos[currentDemo];
+  const steps = [
+    { type: 'user', text: demo.user, duration: 2000 },
+    { type: 'ai', text: demo.ai, duration: 2000 },
+    { type: 'website', text: demo.before, duration: 2000, updated: false },
+    { type: 'website', text: demo.after, duration: 4000, updated: true }
+  ];
+
+  const step = steps[currentStep];
+  const isWebsiteStep = step.type === 'website';
+  const isUpdated = step.updated;
+  const isUserMessage = step.type === 'user';
+  const isAIThinking = step.type === 'ai' && displayedText.length < step.text.length;
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-white to-blue-50 py-12">
@@ -178,7 +165,6 @@ export default function Hero() {
           <div className="relative">
             {/* Chat Interface Mockup */}
             <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden transform hover:scale-105 transition-transform duration-300">
-              {/* Chat Header */}
               <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center space-x-3">
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
@@ -188,25 +174,22 @@ export default function Hero() {
                 </div>
               </div>
               
-              {/* Chat Messages */}
               <div className="p-6 space-y-4 min-h-[200px]">
-                {/* User Message */}
-                {animationStep >= 0 && animationStep <= 3 && displayedText && (
-                  <div className={`flex ${animationStep === 0 ? 'justify-end' : 'justify-start'}`}>
+                {/* Show chat messages only during chat steps */}
+                {!isWebsiteStep && displayedText && (
+                  <div className={`flex ${isUserMessage ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                      animationStep === 0 
+                      isUserMessage 
                         ? 'bg-blue-600 text-white rounded-br-none' 
                         : 'bg-gray-100 text-gray-800 rounded-bl-none'
                     }`}>
-                      <div className="flex items-center space-x-2 mb-1">
-                        {animationStep === 1 && (
-                          <div className="flex space-x-1">
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                            <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
-                          </div>
-                        )}
-                      </div>
+                      {isAIThinking && (
+                        <div className="flex space-x-1 mb-1">
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                          <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                        </div>
+                      )}
                       {displayedText}
                     </div>
                   </div>
@@ -240,7 +223,7 @@ export default function Hero() {
                   <div className={`text-center font-semibold mb-2 transition-all duration-500 ${
                     isUpdated ? 'text-green-600 text-lg' : 'text-gray-700 text-base'
                   }`}>
-                    {websiteContent}
+                    {isWebsiteStep ? displayedText : (isUpdated ? demo.after : demo.before)}
                   </div>
                   <div className="flex justify-center space-x-2 mt-2">
                     <div className="w-20 h-2 bg-gray-300 rounded"></div>
