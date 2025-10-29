@@ -10,8 +10,8 @@ export default function Hero() {
   useEffect(() => {
     const fetchHeroData = async () => {
       try {
-        console.log('Fetching from:', `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/hero-contents`);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/hero-contents`, {
+        console.log('Fetching from:', `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/Hero-content`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/Hero-content`, {
           headers: {
             'Content-Type': 'application/json',
           },
@@ -132,7 +132,7 @@ export default function Hero() {
                   <div className="w-3 h-3 bg-red-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
                   <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span className="text-sm font-medium text-gray-600 ml-2">ContentWeaver AI</span>
+                  <span className="text-sm font-medium text-gray-600 ml-2">Mokosh AI</span>
                 </div>
               </div>
               
