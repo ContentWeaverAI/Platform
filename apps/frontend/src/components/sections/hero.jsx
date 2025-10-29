@@ -42,56 +42,62 @@ export default function Hero() {
     fetchHeroData();
   }, []);
 
-  // Animation sequence
-  useEffect(() => {
-    if (!heroData) return;
+// Animation sequence
+useEffect(() => {
+  if (!heroData) return;
 
-    const steps = [
-      { text: heroData.demoUserMessage, type: 'user', delay: 1000 },
-      { text: heroData.demoAIResponse, type: 'ai', delay: 2000 },
-      { text: heroData.demoBeforeText, type: 'website-before', delay: 2000 },
-      { text: heroData.demoAfterText, type: 'website-after', delay: 4000 }
-    ];
+  const steps = [
+    { text: heroData.demoUserMessage, type: 'user', delay: 1000 },
+    { text: heroData.demoAIResponse, type: 'ai', delay: 2000 },
+    { text: heroData.demoBeforeText, type: 'website-before', delay: 1000 }, // Shorter delay
+    { text: heroData.demoAfterText, type: 'website-after', delay: 3000 }
+  ];
 
-    const currentStep = steps[animationStep];
-    if (!currentStep) {
-      // Reset animation after completion
-      setTimeout(() => setAnimationStep(0), 2000);
-      return;
-    }
+  const currentStep = steps[animationStep];
+  if (!currentStep) {
+    // Reset animation - immediately show "before" text when looping
+    setWebsiteContent(heroData.demoBeforeText);
+    setTimeout(() => setAnimationStep(0), 1000);
+    return;
+  }
 
-    // Handle website content updates separately
-    if (currentStep.type === 'website-after') {
-      setWebsiteContent(heroData.demoAfterText);
-    } else if (currentStep.type === 'website-before') {
-      setWebsiteContent(heroData.demoBeforeText);
-    }
+  // Handle website content updates
+  if (currentStep.type === 'website-after') {
+    setWebsiteContent(heroData.demoAfterText);
+  } else if (currentStep.type === 'website-before') {
+    setWebsiteContent(heroData.demoBeforeText);
+  }
 
-    // Typewriter effect only for chat messages
-    if (currentStep.type === 'user' || currentStep.type === 'ai') {
-      let currentIndex = 0;
-      setDisplayedText('');
-      
-      const typeInterval = setInterval(() => {
-        if (currentIndex < currentStep.text.length) {
-          setDisplayedText(currentStep.text.slice(0, currentIndex + 1));
-          currentIndex++;
-        } else {
-          clearInterval(typeInterval);
-          setTimeout(() => {
-            setAnimationStep(prev => prev + 1);
-          }, currentStep.delay);
-        }
-      }, 50);
+  // Reset website to "before" when starting new chat
+  if (animationStep === 0) {
+    setWebsiteContent(heroData.demoBeforeText);
+  }
 
-      return () => clearInterval(typeInterval);
-    } else {
-      // Move to next step after delay for website steps
-      setTimeout(() => {
-        setAnimationStep(prev => prev + 1);
-      }, currentStep.delay);
-    }
-  }, [animationStep, heroData]);
+  // Typewriter effect only for chat messages
+  if (currentStep.type === 'user' || currentStep.type === 'ai') {
+    let currentIndex = 0;
+    setDisplayedText('');
+    
+    const typeInterval = setInterval(() => {
+      if (currentIndex < currentStep.text.length) {
+        setDisplayedText(currentStep.text.slice(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        clearInterval(typeInterval);
+        setTimeout(() => {
+          setAnimationStep(prev => prev + 1);
+        }, currentStep.delay);
+      }
+    }, 50);
+
+    return () => clearInterval(typeInterval);
+  } else {
+    // Move to next step after delay for website steps
+    setTimeout(() => {
+      setAnimationStep(prev => prev + 1);
+    }, currentStep.delay);
+  }
+}, [animationStep, heroData]);
 
   if (!heroData) {
     return (
