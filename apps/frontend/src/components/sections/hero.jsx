@@ -7,6 +7,7 @@ export default function Hero() {
   const [displayedText, setDisplayedText] = useState('');
   const [currentStep, setCurrentStep] = useState(0);
   const [websiteContent, setWebsiteContent] = useState('');
+  const [chatHistory, setChatHistory] = useState([]);
 
   // Fetch hero content from Strapi
   useEffect(() => {
@@ -16,12 +17,7 @@ export default function Hero() {
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) {
           setHeroData(data[0]);
-          // Set initial website content
-          const demos = [
-            { before: data[0].demoBeforeText, after: data[0].demoAfterText },
-            { before: data[0].demo2BeforeText, after: data[0].demo2AfterText }
-          ];
-          setWebsiteContent(demos[0].before);
+          setWebsiteContent(data[0].demoBeforeText);
         }
       } catch (error) {
         console.error('Error fetching hero data:', error);
@@ -30,7 +26,7 @@ export default function Hero() {
     fetchHeroData();
   }, []);
 
-  // Simple animation loop
+  // Animation loop
   useEffect(() => {
     if (!heroData) return;
 
@@ -50,30 +46,25 @@ export default function Hero() {
     ];
 
     const demo = demos[currentDemo];
+
+    // Clear chat history when starting a new demo
+    if (currentStep === 0) {
+      setChatHistory([]);
+      setWebsiteContent(demo.before);
+    }
+
     const steps = [
-      // Step 0: Show user message
+      // Step 0: User types message
       { type: 'user', text: demo.user, duration: 2000 },
-      // Step 1: Show AI response and immediately update website
-      { type: 'ai', text: demo.ai, duration: 3000 }, // Longer duration to keep AI response visible
-      // Step 2: Keep showing updated website
-      { type: 'website', text: demo.after, duration: 4000, updated: true }
+      // Step 1: AI responds and website updates
+      { type: 'ai', text: demo.ai, duration: 3000 },
+      // Step 2: Show updated website
+      { type: 'website', duration: 4000 }
     ];
 
     const step = steps[currentStep];
     setDisplayedText('');
-    
-    // Handle website updates
-    if (currentStep === 1) {
-      // When AI starts responding, update website immediately after typing finishes
-      setTimeout(() => {
-        setWebsiteContent(demo.after);
-      }, step.text.length * 50 + 500); // After typing + small delay
-    } else if (currentStep === 0) {
-      // Reset to before text when new demo starts
-      setWebsiteContent(demo.before);
-    }
 
-    // Typewriter effect for chat messages
     if (step.type === 'user' || step.type === 'ai') {
       let i = 0;
       const timer = setInterval(() => {
@@ -82,10 +73,24 @@ export default function Hero() {
           i++;
         } else {
           clearInterval(timer);
+          // Add completed message to chat history
+          setChatHistory(prev => [...prev, { 
+            type: step.type, 
+            text: step.text,
+            id: Date.now() + Math.random()
+          }]);
+          setDisplayedText('');
+
+          // Update website immediately when AI finishes typing
+          if (step.type === 'ai') {
+            setWebsiteContent(demo.after);
+          }
+
           setTimeout(() => {
             setCurrentStep((prev) => (prev + 1) % steps.length);
             if (currentStep === steps.length - 1) {
               setCurrentDemo((prev) => (prev + 1) % demos.length);
+              setCurrentStep(0);
             }
           }, step.duration);
         }
@@ -93,11 +98,11 @@ export default function Hero() {
       return () => clearInterval(timer);
     } else {
       // Website step - just wait and move to next demo
-      setDisplayedText(''); // Clear chat during website step
       setTimeout(() => {
         setCurrentStep((prev) => (prev + 1) % steps.length);
         if (currentStep === steps.length - 1) {
           setCurrentDemo((prev) => (prev + 1) % demos.length);
+          setCurrentStep(0);
         }
       }, step.duration);
     }
@@ -139,7 +144,7 @@ export default function Hero() {
   const steps = [
     { type: 'user', text: demo.user, duration: 2000 },
     { type: 'ai', text: demo.ai, duration: 3000 },
-    { type: 'website', text: demo.after, duration: 4000, updated: true }
+    { type: 'website', duration: 4000 }
   ];
 
   const step = steps[currentStep];
@@ -189,8 +194,21 @@ export default function Hero() {
                 </div>
               </div>
               
-              <div className="p-6 space-y-4 min-h-[200px]">
-                {/* Show chat messages only during chat steps */}
+              <div className="p-6 space-y-4 min-h-[200px] max-h-[200px] overflow-y-auto">
+                {/* Previous chat history */}
+                {chatHistory.map((message) => (
+                  <div key={message.id} className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      message.type === 'user' 
+                        ? 'bg-blue-600 text-white rounded-br-none' 
+                        : 'bg-gray-100 text-gray-800 rounded-bl-none'
+                    }`}>
+                      {message.text}
+                    </div>
+                  </div>
+                ))}
+                
+                {/* Current typing message */}
                 {!isWebsiteStep && displayedText && (
                   <div className={`flex ${isUserMessage ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
