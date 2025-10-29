@@ -46,6 +46,22 @@
     "demoAfterText": {
       "type": "string",
       "required": true
+    },
+    "demo2UserMessage": {
+    "type": "string",
+    "required": true
+    },
+    "demo2AIResponse": {
+      "type": "string", 
+      "required": true
+    },
+    "demo2BeforeText": {
+      "type": "string",
+      "required": true
+    },
+    "demo2AfterText": {
+      "type": "string",
+      "required": true
     }
   }
 }
