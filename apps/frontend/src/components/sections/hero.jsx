@@ -10,10 +10,26 @@ export default function Hero() {
   useEffect(() => {
     const fetchHeroData = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/hero-contents`);
+        console.log('Fetching from:', `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/hero-contents`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/hero-contents`, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
         const data = await response.json();
-        if (data && data.length > 0) {
+        console.log('Fetched data:', data);
+        
+        // The API returns an array directly, not {data: [...]}
+        if (Array.isArray(data) && data.length > 0) {
           setHeroData(data[0]);
+        } else {
+          console.error('Unexpected data format:', data);
         }
       } catch (error) {
         console.error('Error fetching hero data:', error);
