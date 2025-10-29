@@ -13,7 +13,7 @@ export default function AccountPage() {
   return (
     <>
       <Head>
-        <title>Account - ContentWeaver</title>
+        <title>Account - MokoshAI</title>
       </Head>
 
       <div className="min-h-screen bg-gray-50 pt-16">
@@ -21,7 +21,7 @@ export default function AccountPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">Account Overview</h1>
-            <p className="text-gray-600 mt-2">Manage your ContentWeaver account and settings</p>
+            <p className="text-gray-600 mt-2">Manage your MokoshAI account and settings</p>
           </div>
 
           {/* Account Info Card */}

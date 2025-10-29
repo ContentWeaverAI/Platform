@@ -75,7 +75,7 @@ export default function LoginModal({ isOpen, onClose }) {
         {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-900 text-center">
-            {currentView === 'login' ? 'Sign In to ContentWeaver' : 'Create Your Account'}
+            {currentView === 'login' ? 'Sign In to MokoshAI' : 'Create Your Account'}
           </h2>
           <p className="text-gray-600 text-sm text-center mt-1">
             {currentView === 'login' 

@@ -9,7 +9,7 @@ export default function ChatPage() {
   const [currentConversation, setCurrentConversation] = useState([
     { 
       role: 'assistant', 
-      content: 'Hello! I\'m your ContentWeaver AI assistant. I can help you update website content, modify services, or optimize pages. What would you like to change today?' 
+      content: 'Hello! I\'m your MokoshAI AI assistant. I can help you update website content, modify services, or optimize pages. What would you like to change today?' 
     }
   ])
   const [input, setInput] = useState('')
@@ -62,7 +62,7 @@ export default function ChatPage() {
   return (
     <>
       <Head>
-        <title>ContentWeaver AI Chat</title>
+        <title>MokoshAI AI Chat</title>
       </Head>
 
       <div className="flex h-screen bg-gray-50">
@@ -74,7 +74,7 @@ export default function ChatPage() {
                 setCurrentConversation([
                   { 
                     role: 'assistant', 
-                    content: 'Hello! I\'m your ContentWeaver AI assistant. What would you like to update on your website today?' 
+                    content: 'Hello! I\'m your MokoshAI AI assistant. What would you like to update on your website today?' 
                   }
                 ])
               }}
@@ -117,7 +117,7 @@ export default function ChatPage() {
         <div className="flex-1 flex flex-col">
           {/* Chat Header */}
           <div className="bg-white border-b border-gray-200 p-4 flex justify-between items-center">
-            <h1 className="text-xl font-semibold text-gray-900">ContentWeaver AI</h1>
+            <h1 className="text-xl font-semibold text-gray-900">MokoshAI AI</h1>
             <div className="text-sm text-gray-500">Powered by DeepSeek AI</div>
           </div>
 

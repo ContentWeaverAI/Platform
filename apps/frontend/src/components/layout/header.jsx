@@ -31,7 +31,7 @@ export default function Header() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <a href="/" className="text-2xl font-bold text-gray-900">ContentWeaver</a>
+              <a href="/" className="text-2xl font-bold text-gray-900">MokoshAI</a>
             </div>
             
             {/* Desktop Navigation */}

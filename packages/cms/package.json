@@ -1,8 +1,8 @@
 {
-  "name": "@contentweaver/cms",
+  "name": "@MokoshAI/cms",
   "version": "1.0.0",
   "private": true,
-  "description": "contentweaver Headless CMS",
+  "description": "MokoshAI Headless CMS",
   "scripts": {
     "develop": "strapi develop",
     "start": "strapi start",

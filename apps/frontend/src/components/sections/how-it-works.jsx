@@ -26,7 +26,7 @@ export default function HowItWorks() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            How ContentWeaver Works
+            How MokoshAI Works
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Update your website content in three simple steps

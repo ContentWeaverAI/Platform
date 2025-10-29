@@ -6,7 +6,7 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState([
     { 
       role: 'assistant', 
-      content: 'Hello! I\'m your ContentWeaver AI assistant. I can help you update website content, modify services, or optimize pages. What would you like to change today?' 
+      content: 'Hello! I\'m your MokoshAI AI assistant. I can help you update website content, modify services, or optimize pages. What would you like to change today?' 
     }
   ])
   const [input, setInput] = useState('')
@@ -67,7 +67,7 @@ export default function ChatInterface() {
             {/* Header */}
             <div className="flex justify-between items-center p-4 border-b border-gray-200">
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">ContentWeaver AI</h3>
+                <h3 className="text-lg font-semibold text-gray-900">MokoshAI AI</h3>
                 <p className="text-sm text-gray-500">Website Content Assistant</p>
               </div>
               <button 

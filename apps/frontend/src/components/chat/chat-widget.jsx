@@ -26,7 +26,7 @@ const ChatWidget = () => {
           
           <Card className="w-full max-w-md h-96 relative z-10">
             <CardHeader className="flex flex-row items-center justify-between border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">ContentWeaver AI Assistant</h3>
+              <h3 className="text-lg font-semibold text-gray-900">MokoshAI AI Assistant</h3>
               <Button variant="ghost" size="small" onClick={() => setIsOpen(false)}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
@@ -43,7 +43,7 @@ const ChatWidget = () => {
                       AI
                     </div>
                     <div className="bg-gray-100 rounded-2xl px-4 py-2 max-w-xs">
-                      <p className="text-gray-700">Hello! I'm your ContentWeaver AI assistant. How can I help you update your website today?</p>
+                      <p className="text-gray-700">Hello! I'm your MokoshAI AI assistant. How can I help you update your website today?</p>
                     </div>
                   </div>
                 </div>

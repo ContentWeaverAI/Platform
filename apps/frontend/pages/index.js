@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>ContentWeaver - AI-Powered Content Management</title>
+        <title>MokoshAI - AI-Powered Content Management</title>
       </Head>
 
       <div className="min-h-screen bg-white">
