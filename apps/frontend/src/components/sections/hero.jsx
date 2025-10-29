@@ -6,6 +6,8 @@ export default function Hero() {
   const [animationStep, setAnimationStep] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [websiteContent, setWebsiteContent] = useState('');
+  const [isUpdated, setIsUpdated] = useState(false);
+  const [animationCycle, setAnimationCycle] = useState(0); // 0 = professional, 1 = winter sale
 
   // Fetch hero content from Strapi
   useEffect(() => {
@@ -26,10 +28,8 @@ export default function Hero() {
         const data = await response.json();
         console.log('Fetched data:', data);
         
-        // The API returns an array directly, not {data: [...]}
         if (Array.isArray(data) && data.length > 0) {
           setHeroData(data[0]);
-          // Initialize website with "before" content
           setWebsiteContent(data[0].demoBeforeText);
         } else {
           console.error('Unexpected data format:', data);
@@ -42,62 +42,87 @@ export default function Hero() {
     fetchHeroData();
   }, []);
 
-// Animation sequence
-useEffect(() => {
-  if (!heroData) return;
+  // Animation sequence
+  useEffect(() => {
+    if (!heroData) return;
 
-  const steps = [
-    { text: heroData.demoUserMessage, type: 'user', delay: 1000 },
-    { text: heroData.demoAIResponse, type: 'ai', delay: 2000 },
-    { text: heroData.demoBeforeText, type: 'website-before', delay: 1000 }, // Shorter delay
-    { text: heroData.demoAfterText, type: 'website-after', delay: 3000 }
-  ];
-
-  const currentStep = steps[animationStep];
-  if (!currentStep) {
-    // Reset animation - immediately show "before" text when looping
-    setWebsiteContent(heroData.demoBeforeText);
-    setTimeout(() => setAnimationStep(0), 1000);
-    return;
-  }
-
-  // Handle website content updates
-  if (currentStep.type === 'website-after') {
-    setWebsiteContent(heroData.demoAfterText);
-  } else if (currentStep.type === 'website-before') {
-    setWebsiteContent(heroData.demoBeforeText);
-  }
-
-  // Reset website to "before" when starting new chat
-  if (animationStep === 0) {
-    setWebsiteContent(heroData.demoBeforeText);
-  }
-
-  // Typewriter effect only for chat messages
-  if (currentStep.type === 'user' || currentStep.type === 'ai') {
-    let currentIndex = 0;
-    setDisplayedText('');
-    
-    const typeInterval = setInterval(() => {
-      if (currentIndex < currentStep.text.length) {
-        setDisplayedText(currentStep.text.slice(0, currentIndex + 1));
-        currentIndex++;
-      } else {
-        clearInterval(typeInterval);
-        setTimeout(() => {
-          setAnimationStep(prev => prev + 1);
-        }, currentStep.delay);
+    // Define sequences based on current cycle
+    const sequences = [
+      // Cycle 0: Professional services update
+      {
+        userMessage: heroData.demoUserMessage,
+        aiResponse: heroData.demoAIResponse,
+        beforeText: heroData.demoBeforeText,
+        afterText: heroData.demoAfterText
+      },
+      // Cycle 1: Winter sale announcement
+      {
+        userMessage: heroData.demo2UserMessage,
+        aiResponse: heroData.demo2AIResponse,
+        beforeText: heroData.demo2BeforeText,
+        afterText: heroData.demo2AfterText
       }
-    }, 50);
+    ];
 
-    return () => clearInterval(typeInterval);
-  } else {
-    // Move to next step after delay for website steps
-    setTimeout(() => {
-      setAnimationStep(prev => prev + 1);
-    }, currentStep.delay);
-  }
-}, [animationStep, heroData]);
+    const currentSequence = sequences[animationCycle];
+    const steps = [
+      { text: currentSequence.userMessage, type: 'user', delay: 1000 },
+      { text: currentSequence.aiResponse, type: 'ai', delay: 1500 },
+      { text: currentSequence.beforeText, type: 'website-before', delay: 1000 },
+      { text: currentSequence.afterText, type: 'website-after', delay: 5000 } // 5 seconds for final display
+    ];
+
+    const currentStep = steps[animationStep];
+    
+    if (!currentStep) {
+      // Reset animation - switch to next cycle
+      setIsUpdated(false);
+      const nextCycle = (animationCycle + 1) % sequences.length;
+      setAnimationCycle(nextCycle);
+      setTimeout(() => setAnimationStep(0), 1000);
+      return;
+    }
+
+    // Handle website content updates and color states
+    if (currentStep.type === 'website-after') {
+      setWebsiteContent(currentSequence.afterText);
+      setIsUpdated(true);
+    } else if (currentStep.type === 'website-before') {
+      setWebsiteContent(currentSequence.beforeText);
+      setIsUpdated(false);
+    }
+
+    // Reset to "before" when starting new chat
+    if (animationStep === 0) {
+      setWebsiteContent(currentSequence.beforeText);
+      setIsUpdated(false);
+    }
+
+    // Typewriter effect only for chat messages
+    if (currentStep.type === 'user' || currentStep.type === 'ai') {
+      let currentIndex = 0;
+      setDisplayedText('');
+      
+      const typeInterval = setInterval(() => {
+        if (currentIndex < currentStep.text.length) {
+          setDisplayedText(currentStep.text.slice(0, currentIndex + 1));
+          currentIndex++;
+        } else {
+          clearInterval(typeInterval);
+          setTimeout(() => {
+            setAnimationStep(prev => prev + 1);
+          }, currentStep.delay);
+        }
+      }, 50);
+
+      return () => clearInterval(typeInterval);
+    } else {
+      // Move to next step after delay for website steps
+      setTimeout(() => {
+        setAnimationStep(prev => prev + 1);
+      }, currentStep.delay);
+    }
+  }, [animationStep, heroData, animationCycle]);
 
   if (!heroData) {
     return (
@@ -161,14 +186,14 @@ useEffect(() => {
               {/* Chat Messages */}
               <div className="p-6 space-y-4 min-h-[200px]">
                 {animationStep >= 0 && displayedText && (
-                  <div className={`flex ${animationStep === 0 ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`flex ${animationStep === 0 || animationStep === 2 ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                      animationStep === 0 
+                      animationStep === 0 || animationStep === 2 
                         ? 'bg-blue-600 text-white rounded-br-none' 
                         : 'bg-gray-100 text-gray-800 rounded-bl-none'
                     }`}>
                       <div className="flex items-center space-x-2 mb-1">
-                        {animationStep === 1 && (
+                        {(animationStep === 1 || animationStep === 3) && (
                           <div className="flex space-x-1">
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
@@ -207,7 +232,7 @@ useEffect(() => {
                 {/* Hero Section */}
                 <div className="mb-6 p-4 bg-gray-50 rounded-lg">
                   <div className={`text-center font-semibold mb-2 transition-all duration-500 ${
-                    animationStep >= 3 ? 'text-green-600 text-lg' : 'text-gray-700 text-base'
+                    isUpdated ? 'text-green-600 text-lg' : 'text-gray-700 text-base'
                   }`}>
                     {websiteContent}
                   </div>
