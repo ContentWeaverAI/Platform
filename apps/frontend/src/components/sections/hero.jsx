@@ -7,32 +7,44 @@ export default function Hero() {
   const [displayedText, setDisplayedText] = useState('');
   const [websiteContent, setWebsiteContent] = useState('');
   const [isUpdated, setIsUpdated] = useState(false);
-  const [animationCycle, setAnimationCycle] = useState(0); // 0 = professional, 1 = winter sale
+  const [animationCycle, setAnimationCycle] = useState(0);
+  const [currentSequence, setCurrentSequence] = useState(null);
 
   // Fetch hero content from Strapi
   useEffect(() => {
     const fetchHeroData = async () => {
       try {
-        console.log('Fetching from:', `${process.env.NEXT_PUBLIC_STRAPI_URL}/api/Hero-content`);
         const response = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/api/Hero-content`, {
           headers: {
             'Content-Type': 'application/json',
           },
         });
-        console.log('Response status:', response.status);
         
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const data = await response.json();
-        console.log('Fetched data:', data);
         
         if (Array.isArray(data) && data.length > 0) {
           setHeroData(data[0]);
+          // Set initial sequence
+          const sequences = [
+            {
+              userMessage: data[0].demoUserMessage,
+              aiResponse: data[0].demoAIResponse,
+              beforeText: data[0].demoBeforeText,
+              afterText: data[0].demoAfterText
+            },
+            {
+              userMessage: data[0].demo2UserMessage,
+              aiResponse: data[0].demo2AIResponse,
+              beforeText: data[0].demo2BeforeText,
+              afterText: data[0].demo2AfterText
+            }
+          ];
+          setCurrentSequence(sequences[0]);
           setWebsiteContent(data[0].demoBeforeText);
-        } else {
-          console.error('Unexpected data format:', data);
         }
       } catch (error) {
         console.error('Error fetching hero data:', error);
@@ -44,30 +56,11 @@ export default function Hero() {
 
   // Animation sequence
   useEffect(() => {
-    if (!heroData) return;
+    if (!heroData || !currentSequence) return;
 
-    // Define sequences based on current cycle
-    const sequences = [
-      // Cycle 0: Professional services update
-      {
-        userMessage: heroData.demoUserMessage,
-        aiResponse: heroData.demoAIResponse,
-        beforeText: heroData.demoBeforeText,
-        afterText: heroData.demoAfterText
-      },
-      // Cycle 1: Winter sale announcement
-      {
-        userMessage: heroData.demo2UserMessage,
-        aiResponse: heroData.demo2AIResponse,
-        beforeText: heroData.demo2BeforeText,
-        afterText: heroData.demo2AfterText
-      }
-    ];
-
-    const currentSequence = sequences[animationCycle];
     const steps = [
       { text: currentSequence.userMessage, type: 'user', delay: 1000 },
-      { text: currentSequence.aiResponse, type: 'ai', delay: 1500 },
+      { text: currentSequence.aiResponse, type: 'ai', delay: 2000 },
       { text: currentSequence.beforeText, type: 'website-before', delay: 1000 },
       { text: currentSequence.afterText, type: 'website-after', delay: 5000 } // 5 seconds for final display
     ];
@@ -75,15 +68,33 @@ export default function Hero() {
     const currentStep = steps[animationStep];
     
     if (!currentStep) {
-      // Reset animation - switch to next cycle
-      setIsUpdated(false);
+      // Switch to next sequence and reset
+      const sequences = [
+        {
+          userMessage: heroData.demoUserMessage,
+          aiResponse: heroData.demoAIResponse,
+          beforeText: heroData.demoBeforeText,
+          afterText: heroData.demoAfterText
+        },
+        {
+          userMessage: heroData.demo2UserMessage,
+          aiResponse: heroData.demo2AIResponse,
+          beforeText: heroData.demo2BeforeText,
+          afterText: heroData.demo2AfterText
+        }
+      ];
+      
       const nextCycle = (animationCycle + 1) % sequences.length;
       setAnimationCycle(nextCycle);
+      setCurrentSequence(sequences[nextCycle]);
+      setWebsiteContent(sequences[nextCycle].beforeText);
+      setIsUpdated(false);
+      setDisplayedText('');
       setTimeout(() => setAnimationStep(0), 1000);
       return;
     }
 
-    // Handle website content updates and color states
+    // Handle website content and color states
     if (currentStep.type === 'website-after') {
       setWebsiteContent(currentSequence.afterText);
       setIsUpdated(true);
@@ -92,13 +103,7 @@ export default function Hero() {
       setIsUpdated(false);
     }
 
-    // Reset to "before" when starting new chat
-    if (animationStep === 0) {
-      setWebsiteContent(currentSequence.beforeText);
-      setIsUpdated(false);
-    }
-
-    // Typewriter effect only for chat messages
+    // Typewriter effect for chat messages
     if (currentStep.type === 'user' || currentStep.type === 'ai') {
       let currentIndex = 0;
       setDisplayedText('');
@@ -117,12 +122,12 @@ export default function Hero() {
 
       return () => clearInterval(typeInterval);
     } else {
-      // Move to next step after delay for website steps
+      // Website steps - just wait and move to next
       setTimeout(() => {
         setAnimationStep(prev => prev + 1);
       }, currentStep.delay);
     }
-  }, [animationStep, heroData, animationCycle]);
+  }, [animationStep, heroData, currentSequence, animationCycle]);
 
   if (!heroData) {
     return (
@@ -185,15 +190,16 @@ export default function Hero() {
               
               {/* Chat Messages */}
               <div className="p-6 space-y-4 min-h-[200px]">
-                {animationStep >= 0 && displayedText && (
-                  <div className={`flex ${animationStep === 0 || animationStep === 2 ? 'justify-end' : 'justify-start'}`}>
+                {/* User Message */}
+                {animationStep >= 0 && animationStep <= 3 && displayedText && (
+                  <div className={`flex ${animationStep === 0 ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                      animationStep === 0 || animationStep === 2 
+                      animationStep === 0 
                         ? 'bg-blue-600 text-white rounded-br-none' 
                         : 'bg-gray-100 text-gray-800 rounded-bl-none'
                     }`}>
                       <div className="flex items-center space-x-2 mb-1">
-                        {(animationStep === 1 || animationStep === 3) && (
+                        {animationStep === 1 && (
                           <div className="flex space-x-1">
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
                             <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
