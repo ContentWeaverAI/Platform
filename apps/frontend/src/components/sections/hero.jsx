@@ -5,6 +5,7 @@ export default function Hero() {
   const [heroData, setHeroData] = useState(null);
   const [animationStep, setAnimationStep] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
+  const [websiteContent, setWebsiteContent] = useState('');
 
   // Fetch hero content from Strapi
   useEffect(() => {
@@ -28,6 +29,8 @@ export default function Hero() {
         // The API returns an array directly, not {data: [...]}
         if (Array.isArray(data) && data.length > 0) {
           setHeroData(data[0]);
+          // Initialize website with "before" content
+          setWebsiteContent(data[0].demoBeforeText);
         } else {
           console.error('Unexpected data format:', data);
         }
@@ -46,8 +49,8 @@ export default function Hero() {
     const steps = [
       { text: heroData.demoUserMessage, type: 'user', delay: 1000 },
       { text: heroData.demoAIResponse, type: 'ai', delay: 2000 },
-      { text: heroData.demoBeforeText, type: 'website', delay: 1000 },
-      { text: heroData.demoAfterText, type: 'website-updated', delay: 3000 }
+      { text: heroData.demoBeforeText, type: 'website-before', delay: 2000 },
+      { text: heroData.demoAfterText, type: 'website-after', delay: 4000 }
     ];
 
     const currentStep = steps[animationStep];
@@ -57,24 +60,37 @@ export default function Hero() {
       return;
     }
 
-    // Typewriter effect
-    let currentIndex = 0;
-    setDisplayedText('');
-    
-    const typeInterval = setInterval(() => {
-      if (currentIndex < currentStep.text.length) {
-        setDisplayedText(currentStep.text.slice(0, currentIndex + 1));
-        currentIndex++;
-      } else {
-        clearInterval(typeInterval);
-        // Move to next step after delay
-        setTimeout(() => {
-          setAnimationStep(prev => prev + 1);
-        }, currentStep.delay);
-      }
-    }, 50);
+    // Handle website content updates separately
+    if (currentStep.type === 'website-after') {
+      setWebsiteContent(heroData.demoAfterText);
+    } else if (currentStep.type === 'website-before') {
+      setWebsiteContent(heroData.demoBeforeText);
+    }
 
-    return () => clearInterval(typeInterval);
+    // Typewriter effect only for chat messages
+    if (currentStep.type === 'user' || currentStep.type === 'ai') {
+      let currentIndex = 0;
+      setDisplayedText('');
+      
+      const typeInterval = setInterval(() => {
+        if (currentIndex < currentStep.text.length) {
+          setDisplayedText(currentStep.text.slice(0, currentIndex + 1));
+          currentIndex++;
+        } else {
+          clearInterval(typeInterval);
+          setTimeout(() => {
+            setAnimationStep(prev => prev + 1);
+          }, currentStep.delay);
+        }
+      }, 50);
+
+      return () => clearInterval(typeInterval);
+    } else {
+      // Move to next step after delay for website steps
+      setTimeout(() => {
+        setAnimationStep(prev => prev + 1);
+      }, currentStep.delay);
+    }
   }, [animationStep, heroData]);
 
   if (!heroData) {
@@ -171,13 +187,50 @@ export default function Hero() {
                   <span className="text-sm font-medium text-gray-600 ml-2">Website Preview</span>
                 </div>
               </div>
-              <div className="p-6 min-h-[100px] flex items-center justify-center">
-                <div className={`text-lg font-semibold text-center transition-all duration-500 ${
-                  animationStep >= 2 
-                    ? 'text-green-600 transform scale-105' 
-                    : 'text-gray-700'
-                }`}>
-                  {displayedText}
+              <div className="p-4">
+                {/* Website Header */}
+                <div className="flex justify-between items-center mb-6">
+                  <div className="text-lg font-bold text-gray-800">BusinessName</div>
+                  <div className="flex space-x-4">
+                    <div className="w-16 h-2 bg-gray-300 rounded"></div>
+                    <div className="w-16 h-2 bg-gray-300 rounded"></div>
+                    <div className="w-16 h-2 bg-gray-300 rounded"></div>
+                  </div>
+                </div>
+
+                {/* Hero Section */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <div className={`text-center font-semibold mb-2 transition-all duration-500 ${
+                    animationStep >= 3 ? 'text-green-600 text-lg' : 'text-gray-700 text-base'
+                  }`}>
+                    {websiteContent}
+                  </div>
+                  <div className="flex justify-center space-x-2 mt-2">
+                    <div className="w-20 h-2 bg-gray-300 rounded"></div>
+                    <div className="w-20 h-2 bg-gray-300 rounded"></div>
+                  </div>
+                </div>
+
+                {/* Services Section */}
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="p-2 bg-gray-50 rounded text-center">
+                    <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-1"></div>
+                    <div className="w-12 h-2 bg-gray-300 rounded mx-auto"></div>
+                  </div>
+                  <div className="p-2 bg-gray-50 rounded text-center">
+                    <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-1"></div>
+                    <div className="w-12 h-2 bg-gray-300 rounded mx-auto"></div>
+                  </div>
+                  <div className="p-2 bg-gray-50 rounded text-center">
+                    <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-1"></div>
+                    <div className="w-12 h-2 bg-gray-300 rounded mx-auto"></div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                  <div className="w-20 h-2 bg-gray-300 rounded"></div>
+                  <div className="w-20 h-2 bg-gray-300 rounded"></div>
                 </div>
               </div>
             </div>
