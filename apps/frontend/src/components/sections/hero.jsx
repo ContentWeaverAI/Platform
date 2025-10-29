@@ -6,6 +6,7 @@ export default function Hero() {
   const [currentDemo, setCurrentDemo] = useState(0);
   const [displayedText, setDisplayedText] = useState('');
   const [currentStep, setCurrentStep] = useState(0);
+  const [websiteContent, setWebsiteContent] = useState('');
 
   // Fetch hero content from Strapi
   useEffect(() => {
@@ -15,6 +16,12 @@ export default function Hero() {
         const data = await response.json();
         if (Array.isArray(data) && data.length > 0) {
           setHeroData(data[0]);
+          // Set initial website content
+          const demos = [
+            { before: data[0].demoBeforeText, after: data[0].demoAfterText },
+            { before: data[0].demo2BeforeText, after: data[0].demo2AfterText }
+          ];
+          setWebsiteContent(demos[0].before);
         }
       } catch (error) {
         console.error('Error fetching hero data:', error);
@@ -46,17 +53,26 @@ export default function Hero() {
     const steps = [
       // Step 0: Show user message
       { type: 'user', text: demo.user, duration: 2000 },
-      // Step 1: Show AI response  
-      { type: 'ai', text: demo.ai, duration: 2000 },
-      // Step 2: Show website before
-      { type: 'website', text: demo.before, duration: 2000, updated: false },
-      // Step 3: Show website after
+      // Step 1: Show AI response and immediately update website
+      { type: 'ai', text: demo.ai, duration: 3000 }, // Longer duration to keep AI response visible
+      // Step 2: Keep showing updated website
       { type: 'website', text: demo.after, duration: 4000, updated: true }
     ];
 
     const step = steps[currentStep];
     setDisplayedText('');
     
+    // Handle website updates
+    if (currentStep === 1) {
+      // When AI starts responding, update website immediately after typing finishes
+      setTimeout(() => {
+        setWebsiteContent(demo.after);
+      }, step.text.length * 50 + 500); // After typing + small delay
+    } else if (currentStep === 0) {
+      // Reset to before text when new demo starts
+      setWebsiteContent(demo.before);
+    }
+
     // Typewriter effect for chat messages
     if (step.type === 'user' || step.type === 'ai') {
       let i = 0;
@@ -76,8 +92,8 @@ export default function Hero() {
       }, 50);
       return () => clearInterval(timer);
     } else {
-      // Website content appears instantly
-      setDisplayedText(step.text);
+      // Website step - just wait and move to next demo
+      setDisplayedText(''); // Clear chat during website step
       setTimeout(() => {
         setCurrentStep((prev) => (prev + 1) % steps.length);
         if (currentStep === steps.length - 1) {
@@ -122,14 +138,13 @@ export default function Hero() {
   const demo = demos[currentDemo];
   const steps = [
     { type: 'user', text: demo.user, duration: 2000 },
-    { type: 'ai', text: demo.ai, duration: 2000 },
-    { type: 'website', text: demo.before, duration: 2000, updated: false },
+    { type: 'ai', text: demo.ai, duration: 3000 },
     { type: 'website', text: demo.after, duration: 4000, updated: true }
   ];
 
   const step = steps[currentStep];
   const isWebsiteStep = step.type === 'website';
-  const isUpdated = step.updated;
+  const isUpdated = currentStep >= 1; // Website is updated after AI responds
   const isUserMessage = step.type === 'user';
   const isAIThinking = step.type === 'ai' && displayedText.length < step.text.length;
 
@@ -223,7 +238,7 @@ export default function Hero() {
                   <div className={`text-center font-semibold mb-2 transition-all duration-500 ${
                     isUpdated ? 'text-green-600 text-lg' : 'text-gray-700 text-base'
                   }`}>
-                    {isWebsiteStep ? displayedText : (isUpdated ? demo.after : demo.before)}
+                    {websiteContent}
                   </div>
                   <div className="flex justify-center space-x-2 mt-2">
                     <div className="w-20 h-2 bg-gray-300 rounded"></div>
