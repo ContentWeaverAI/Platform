@@ -1,0 +1,51 @@
+{
+  "kind": "collectionType",
+  "collectionName": "hero_contents",
+  "info": {
+    "singularName": "hero-content",
+    "pluralName": "hero-contents", 
+    "displayName": "HeroContent",
+    "description": "AI-optimized hero section content"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "aboveTheFoldHeadline": {
+      "type": "string",
+      "required": true
+    },
+    "aboveTheFoldAccent": {
+      "type": "string", 
+      "required": true
+    },
+    "aboveTheFoldDescription": {
+      "type": "text",
+      "required": true
+    },
+    "primaryButtonText": {
+      "type": "string",
+      "required": true
+    },
+    "secondaryButtonText": {
+      "type": "string"
+    },
+    "demoUserMessage": {
+      "type": "string",
+      "required": true
+    },
+    "demoAIResponse": {
+      "type": "string", 
+      "required": true
+    },
+    "demoBeforeText": {
+      "type": "string",
+      "required": true
+    },
+    "demoAfterText": {
+      "type": "string",
+      "required": true
+    }
+  }
+}
