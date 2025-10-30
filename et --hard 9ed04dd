@@ -13,7 +13,7 @@
 [33m3e36e0d[m fix: downgrade tailwind to v3 and fix build issues
 [33m767f7db[m refactor: implement professional component architecture with kebab-case file naming
 [33m519ef43[m feat: implement OpenAI-style professional design with AI chat interface
-[33m82334b1[m refactor: complete rebrand to ContentWeaverAI platform
+[33m82334b1[m refactor: complete rebrand to MokoshAIAI platform
 [33m83e71fc[m Create schema.json
 [33m9b2201b[m Create index.js
 [33m8f33386[m Create .env

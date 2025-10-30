@@ -1,4 +1,4 @@
-"use strict";(self.webpackChunk_contentweaver_cms=self.webpackChunk_contentweaver_cms||[]).push([[4590],{31458:(dt,S,s)=>{s.d(S,{S:()=>N});var t=s(58466),_=s(86784),P=s(45227),V=s(86507),F=s(59979),X=s(13775);const Y=(0,_.Ay)(P.a)`
+"use strict";(self.webpackChunk_MokoshAI_cms=self.webpackChunk_MokoshAI_cms||[]).push([[4590],{31458:(dt,S,s)=>{s.d(S,{S:()=>N});var t=s(58466),_=s(86784),P=s(45227),V=s(86507),F=s(59979),X=s(13775);const Y=(0,_.Ay)(P.a)`
   height: ${24/16}rem;
   width: ${24/16}rem;
   border-radius: 50%;

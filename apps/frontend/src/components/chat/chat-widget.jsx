@@ -1,73 +1,151 @@
-import React, { useState } from 'react';
-import Button from '../ui/button';
-import { Card, CardContent, CardHeader } from '../ui/card';
+'use client';
+import { useState, useEffect } from 'react';
 
-const ChatWidget = () => {
+export default function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load messages from session storage to maintain continuity
+  useEffect(() => {
+    const savedMessages = sessionStorage.getItem('floatingChatMessages');
+    if (savedMessages) {
+      setMessages(JSON.parse(savedMessages));
+    }
+  }, []);
+
+  // Save messages to session storage
+  useEffect(() => {
+    sessionStorage.setItem('floatingChatMessages', JSON.stringify(messages));
+  }, [messages]);
+
+  const sendMessage = async (e) => {
+    e.preventDefault();
+    if (!inputMessage.trim() || isLoading) return;
+
+    const userMessage = { role: 'user', content: inputMessage };
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
+    setInputMessage('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          messages: updatedMessages,
+          isHeroChat: false 
+        }),
+      });
+
+      const data = await response.json();
+      if (data.reply) {
+        setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <>
       {/* Floating Chat Button */}
-      <Button
-        variant="primary"
-        size="large"
-        className="fixed bottom-8 right-8 rounded-full w-14 h-14 shadow-lg z-40"
-        onClick={() => setIsOpen(true)}
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>
-      </Button>
+      {!isOpen && (
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 bg-teal-500 hover:bg-teal-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 z-50"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+        </button>
+      )}
 
-      {/* Chat Modal */}
+      {/* Chat Window */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end justify-end p-4">
-          <div className="bg-black bg-opacity-50 absolute inset-0" onClick={() => setIsOpen(false)}></div>
-          
-          <Card className="w-full max-w-md h-96 relative z-10">
-            <CardHeader className="flex flex-row items-center justify-between border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900">MokoshAI AI Assistant</h3>
-              <Button variant="ghost" size="small" onClick={() => setIsOpen(false)}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-                </svg>
-              </Button>
-            </CardHeader>
+        <div className="fixed bottom-6 right-6 w-96 h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-200 flex flex-col z-50">
+          {/* Chat Header */}
+          <div className="bg-teal-500 px-4 py-3 rounded-t-2xl flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <div className="w-2 h-2 bg-white rounded-full opacity-80"></div>
+              <div className="w-2 h-2 bg-white rounded-full opacity-80"></div>
+              <div className="w-2 h-2 bg-white rounded-full opacity-80"></div>
+              <span className="text-sm font-medium text-white">Mokosh AI Assistant</span>
+            </div>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="text-white hover:text-gray-200 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Chat Messages */}
+          <div className="flex-1 p-4 space-y-3 overflow-y-auto">
+            {messages.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">
+                <div className="text-teal-500 text-lg font-semibold mb-2">Hi! I'm Mokosh AI</div>
+                <p className="text-sm">How can I help you today?</p>
+              </div>
+            ) : (
+              messages.map((message, index) => (
+                <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[80%] rounded-2xl px-3 py-2 ${
+                    message.role === 'user' 
+                      ? 'bg-teal-500 text-white rounded-br-none' 
+                      : 'bg-gray-100 text-gray-800 rounded-bl-none'
+                  }`}>
+                    {message.content}
+                  </div>
+                </div>
+              ))
+            )}
             
-            <CardContent className="p-0 h-full flex flex-col">
-              {/* Chat Messages */}
-              <div className="flex-1 p-4 overflow-y-auto">
-                <div className="space-y-4">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                      AI
-                    </div>
-                    <div className="bg-gray-100 rounded-2xl px-4 py-2 max-w-xs">
-                      <p className="text-gray-700">Hello! I'm your MokoshAI AI assistant. How can I help you update your website today?</p>
-                    </div>
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-100 text-gray-800 rounded-2xl rounded-bl-none px-3 py-2">
+                  <div className="flex space-x-1">
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
                   </div>
                 </div>
               </div>
-              
-              {/* Chat Input */}
-              <div className="border-t border-gray-200 p-4">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Ask me to update your website..."
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <Button variant="primary" size="medium">
-                    Send
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            )}
+          </div>
+
+          {/* Chat Input */}
+          <div className="border-t border-gray-200 p-4">
+            <form onSubmit={sendMessage} className="flex space-x-2">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                placeholder="Type your message..."
+                className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                disabled={isLoading || !inputMessage.trim()}
+                className="bg-teal-500 hover:bg-teal-600 disabled:bg-teal-300 text-white font-semibold px-4 py-2 rounded-lg transition-colors text-sm"
+              >
+                Send
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </>
   );
-};
-
-export default ChatWidget;
+}

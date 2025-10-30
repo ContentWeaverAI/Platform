@@ -1,1 +1,1 @@
-"use strict";(self.webpackChunk_contentweaver_cms=self.webpackChunk_contentweaver_cms||[]).push([[1989],{91989:(e,c,n)=>{n.r(c),n.d(c,{default:()=>s});const s={}}}]);
+"use strict";(self.webpackChunk_MokoshAI_cms=self.webpackChunk_MokoshAI_cms||[]).push([[1989],{91989:(e,c,n)=>{n.r(c),n.d(c,{default:()=>s});const s={}}}]);
