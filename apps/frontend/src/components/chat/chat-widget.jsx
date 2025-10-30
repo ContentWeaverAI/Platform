@@ -1,15 +1,32 @@
 'use client';
 import { useState, useEffect } from 'react';
 
-export default function FloatingChat() {
+export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Load messages from session storage to maintain continuity
+  // Listen for open chat events from hero section
   useEffect(() => {
-    const savedMessages = sessionStorage.getItem('floatingChatMessages');
+    const handleOpenChatWithMessage = (event) => {
+      setIsOpen(true);
+      if (event.detail.message) {
+        setInputMessage(event.detail.message);
+        // Auto-send after a brief delay
+        setTimeout(() => {
+          handleSendMessage(event.detail.message);
+        }, 100);
+      }
+    };
+
+    window.addEventListener('openChatWithMessage', handleOpenChatWithMessage);
+    return () => window.removeEventListener('openChatWithMessage', handleOpenChatWithMessage);
+  }, []);
+
+  // Load messages from session storage
+  useEffect(() => {
+    const savedMessages = sessionStorage.getItem('mokoshChatMessages');
     if (savedMessages) {
       setMessages(JSON.parse(savedMessages));
     }
@@ -17,17 +34,21 @@ export default function FloatingChat() {
 
   // Save messages to session storage
   useEffect(() => {
-    sessionStorage.setItem('floatingChatMessages', JSON.stringify(messages));
+    sessionStorage.setItem('mokoshChatMessages', JSON.stringify(messages));
   }, [messages]);
 
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!inputMessage.trim() || isLoading) return;
+  const handleSendMessage = async (prefilledMessage = '') => {
+    const messageToSend = prefilledMessage || inputMessage;
+    if (!messageToSend.trim() || isLoading) return;
 
-    const userMessage = { role: 'user', content: inputMessage };
+    const userMessage = { role: 'user', content: messageToSend };
     const updatedMessages = [...messages, userMessage];
     setMessages(updatedMessages);
-    setInputMessage('');
+    
+    if (!prefilledMessage) {
+      setInputMessage('');
+    }
+    
     setIsLoading(true);
 
     try {
@@ -35,8 +56,7 @@ export default function FloatingChat() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          messages: updatedMessages,
-          isHeroChat: false 
+          messages: updatedMessages
         }),
       });
 
@@ -55,6 +75,11 @@ export default function FloatingChat() {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    handleSendMessage();
+  };
+
   return (
     <>
       {/* Floating Chat Button */}
@@ -62,6 +87,7 @@ export default function FloatingChat() {
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-6 right-6 bg-teal-500 hover:bg-teal-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center transition-all duration-300 z-50"
+          data-chat-widget="true"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -95,7 +121,7 @@ export default function FloatingChat() {
             {messages.length === 0 ? (
               <div className="text-center text-gray-500 py-8">
                 <div className="text-teal-500 text-lg font-semibold mb-2">Hi! I'm Mokosh AI</div>
-                <p className="text-sm">How can I help you today?</p>
+                <p className="text-sm">How can I help you with your website content today?</p>
               </div>
             ) : (
               messages.map((message, index) => (
@@ -126,7 +152,7 @@ export default function FloatingChat() {
 
           {/* Chat Input */}
           <div className="border-t border-gray-200 p-4">
-            <form onSubmit={sendMessage} className="flex space-x-2">
+            <form onSubmit={handleSubmit} className="flex space-x-2">
               <input
                 type="text"
                 value={inputMessage}
