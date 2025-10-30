@@ -2,19 +2,20 @@
 import { useState, useEffect } from 'react';
 
 const fallbackHeroData = {
-  headline: "What do you want to create?",
-  subheadline: "Start generating with a simple conversation.",
-  exampleMessages: [
-    "Make an ad photo for my sneaker brand",
-    "Generate a dramatic aerial video shot of NYC", 
-    "Design a Scandinavian style living room"
-  ]
+  aboveTheFoldHeadline: "AI-Powered Content Management",
+  aboveTheFoldAccent: "Through Conversation",
+  aboveTheFoldDescription: "Update your website content instantly by chatting with AI. No technical skills, no complex interfaces.",
+  primaryButtonText: "Start Free Trial",
+  secondaryButtonText: "Watch Demo"
 };
 
 export default function Hero() {
   const [heroData, setHeroData] = useState(fallbackHeroData);
+  const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch hero content from Strapi
   useEffect(() => {
     const fetchHeroData = async () => {
       try {
@@ -22,15 +23,7 @@ export default function Hero() {
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data) && data.length > 0) {
-            setHeroData({
-              headline: data[0].aboveTheFoldHeadline,
-              subheadline: data[0].aboveTheFoldDescription,
-              exampleMessages: [
-                data[0].demoUserMessage,
-                data[0].demo2UserMessage,
-                "Design a professional services page for my business"
-              ]
-            });
+            setHeroData(data[0]);
           }
         }
       } catch (error) {
@@ -40,87 +33,156 @@ export default function Hero() {
     fetchHeroData();
   }, []);
 
-  const handleSubmit = (e) => {
+  // Send message to AI
+  const sendMessage = async (e) => {
     e.preventDefault();
-    if (!inputMessage.trim()) return;
-    
-    // Open chat widget with the message
-    const chatWidget = document.querySelector('[data-chat-widget]');
-    if (chatWidget) {
-      // Trigger chat widget open and send message
-      const event = new CustomEvent('openChatWithMessage', { 
-        detail: { message: inputMessage } 
-      });
-      window.dispatchEvent(event);
-    }
-    
-    setInputMessage('');
-  };
+    if (!inputMessage.trim() || isLoading) return;
 
-  const handleExampleClick = (message) => {
-    setInputMessage(message);
+    const userMessage = { role: 'user', content: inputMessage };
+    setMessages(prev => [...prev, userMessage]);
+    setInputMessage('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          messages: [...messages, userMessage],
+          isHeroChat: true 
+        }),
+      });
+
+      const data = await response.json();
+      if (data.reply) {
+        setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: 'Sorry, I encountered an error. Please try again.' 
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gray-50 px-6 py-20">
-      <div className="max-w-4xl mx-auto w-full text-center">
-        
-        {/* Headline */}
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
-          {heroData.headline}
-        </h1>
-        
-        {/* Subheadline */}
-        <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto">
-          {heroData.subheadline}
-        </p>
-
-        {/* Chat Input - RunwayML Style */}
-        <div className="max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="mb-8">
-            <div className="relative">
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Describe your idea"
-                className="w-full bg-white border border-gray-300 rounded-2xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 top-2 bg-teal-500 hover:bg-teal-600 text-white font-medium px-6 py-2 rounded-xl transition-colors"
+    <section className="min-h-screen flex items-center bg-gradient-to-br from-white to-teal-50 py-12">
+      <div className="max-w-7xl mx-auto px-6 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          
+          {/* Left Column - Copy & CTAs */}
+          <div className="text-left">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              {heroData.aboveTheFoldHeadline}
+              <span className="block text-teal-500">{heroData.aboveTheFoldAccent}</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl lg:text-2xl text-gray-600 mb-8 leading-relaxed">
+              {heroData.aboveTheFoldDescription}
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <button 
+                onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+                className="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-3 px-6 rounded-lg text-lg transition-colors shadow-lg"
               >
-                Submit
+                {heroData.primaryButtonText}
               </button>
+              {heroData.secondaryButtonText && (
+                <button 
+                  onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+                  className="border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-6 rounded-lg text-lg transition-colors"
+                >
+                  {heroData.secondaryButtonText}
+                </button>
+              )}
             </div>
-          </form>
 
-          {/* Example Messages */}
-          <div className="space-y-3 mb-12">
-            {heroData.exampleMessages.map((message, index) => (
-              <button
-                key={index}
-                onClick={() => handleExampleClick(message)}
-                className="block w-full text-left bg-white hover:bg-gray-50 border border-gray-200 rounded-2xl px-6 py-4 text-gray-700 hover:text-gray-900 transition-colors text-lg shadow-sm hover:shadow-md"
-              >
-                {message}
-              </button>
-            ))}
+            {/* Trust Indicators */}
+            <div className="flex items-center space-x-6 text-sm text-gray-500">
+              <div>No credit card required</div>
+              <div>•</div>
+              <div>Setup in 5 minutes</div>
+              <div>•</div>
+              <div>Free trial</div>
+            </div>
           </div>
 
-          {/* Legal Text */}
-          <p className="text-sm text-gray-500 max-w-md mx-auto">
-            By sending a message, you agree to our Terms of Use and acknowledge that you have read and understand our Privacy Policy.
-          </p>
-        </div>
+          {/* Right Column - Functional Chat */}
+          <div className="bg-white rounded-2xl shadow-2xl border border-gray-200 overflow-hidden">
+            {/* Chat Header */}
+            <div className="bg-teal-500 px-6 py-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-3 h-3 bg-white rounded-full opacity-80"></div>
+                <div className="w-3 h-3 bg-white rounded-full opacity-80"></div>
+                <div className="w-3 h-3 bg-white rounded-full opacity-80"></div>
+                <span className="text-sm font-medium text-white ml-2">Ask me about Mokosh AI</span>
+              </div>
+            </div>
+            
+            {/* Chat Messages */}
+            <div className="p-6 space-y-4 min-h-[400px] max-h-[400px] overflow-y-auto">
+              {messages.length === 0 ? (
+                <div className="text-center text-gray-500 py-8">
+                  <div className="text-teal-500 text-lg font-semibold mb-2">Hi! I'm Mokosh AI</div>
+                  <p className="text-sm">Ask me anything about our AI content management platform</p>
+                  <div className="mt-4 space-y-2 text-xs text-gray-400">
+                    <div>"How does Mokosh AI work?"</div>
+                    <div>"What kind of content can I update?"</div>
+                    <div>"How much does it cost?"</div>
+                  </div>
+                </div>
+              ) : (
+                messages.map((message, index) => (
+                  <div key={index} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                      message.role === 'user' 
+                        ? 'bg-teal-500 text-white rounded-br-none' 
+                        : 'bg-gray-100 text-gray-800 rounded-bl-none'
+                    }`}>
+                      {message.content}
+                    </div>
+                  </div>
+                ))
+              )}
+              
+              {isLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 text-gray-800 rounded-2xl rounded-bl-none px-4 py-3">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
-        {/* Bottom Links - RunwayML Style */}
-        <div className="mt-16 flex flex-wrap justify-center gap-8 text-sm text-gray-600">
-          <button className="hover:text-teal-500 transition-colors">New</button>
-          <button className="hover:text-teal-500 transition-colors">Edit video with chat. Learn more.</button>
-          <button className="hover:text-teal-500 transition-colors">Make an ad photo for my sneaker brand</button>
-          <button className="hover:text-teal-500 transition-colors">Generate a dramatic aerial video shot of NYC</button>
-          <button className="hover:text-teal-500 transition-colors">Design a Scandinavian style living room</button>
+            {/* Chat Input */}
+            <div className="border-t border-gray-200 p-4">
+              <form onSubmit={sendMessage} className="flex space-x-2">
+                <input
+                  type="text"
+                  value={inputMessage}
+                  onChange={(e) => setInputMessage(e.target.value)}
+                  placeholder="Ask about Mokosh AI..."
+                  className="flex-1 border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  disabled={isLoading}
+                />
+                <button
+                  type="submit"
+                  disabled={isLoading || !inputMessage.trim()}
+                  className="bg-teal-500 hover:bg-teal-600 disabled:bg-teal-300 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
+                >
+                  Send
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </section>
