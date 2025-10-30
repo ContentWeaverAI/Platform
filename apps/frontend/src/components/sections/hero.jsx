@@ -4,13 +4,8 @@ import { useState, useEffect } from 'react';
 const fallbackHeroData = {
   headline: "What do you want to create?",
   subheadline: "Start generating with a simple conversation.",
-  primaryButtonText: "Start Free Trial",
-  secondaryButtonText: "Watch Demo",
-  exampleMessages: [
-    "Make an ad photo for my sneaker brand",
-    "Generate a dramatic aerial video shot of NYC", 
-    "Design a Scandinavian style living room"
-  ]
+  primaryButtonText: "Start Free Trial", 
+  secondaryButtonText: "Watch Demo"
 };
 
 export default function Hero() {
@@ -28,12 +23,7 @@ export default function Hero() {
               headline: data[0].aboveTheFoldHeadline,
               subheadline: data[0].aboveTheFoldDescription,
               primaryButtonText: data[0].primaryButtonText,
-              secondaryButtonText: data[0].secondaryButtonText,
-              exampleMessages: [
-                data[0].demoUserMessage,
-                data[0].demo2UserMessage,
-                "Design a professional services page for my business"
-              ]
+              secondaryButtonText: data[0].secondaryButtonText
             });
           }
         }
@@ -48,7 +38,6 @@ export default function Hero() {
     e.preventDefault();
     if (!inputMessage.trim()) return;
     
-    // Open chat widget with the message
     const chatWidget = document.querySelector('[data-chat-widget]');
     if (chatWidget) {
       const event = new CustomEvent('openChatWithMessage', { 
@@ -60,78 +49,52 @@ export default function Hero() {
     setInputMessage('');
   };
 
-  const handleExampleClick = (message) => {
-    setInputMessage(message);
-  };
-
   return (
-    <section className="min-h-screen flex items-center justify-center bg-teal-900 px-6 py-20">
+    <section className="min-h-screen flex items-center justify-center bg-gray-50 px-6 py-20">
       <div className="max-w-4xl mx-auto w-full text-center">
         
-        {/* Headline - White Text */}
-        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
+        <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-6 leading-tight tracking-tight">
           {heroData.headline}
         </h1>
         
-        {/* Subheadline - Light Gray Text */}
-        <p className="text-xl md:text-2xl text-teal-100 mb-12 max-w-2xl mx-auto">
+        <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto">
           {heroData.subheadline}
         </p>
 
-        {/* Original Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-          <button 
-            onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-            className="bg-teal-500 hover:bg-teal-400 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-colors shadow-lg hover:shadow-xl"
-          >
-            {heroData.primaryButtonText}
-          </button>
-          
-          <button 
-            onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
-            className="border-2 border-teal-300 hover:border-teal-200 text-teal-100 hover:text-white font-semibold py-3 px-8 rounded-lg text-lg transition-all duration-200"
-          >
-            {heroData.secondaryButtonText}
-          </button>
-        </div>
-
-        {/* Chat Input - RunwayML Style */}
-        <div className="max-w-2xl mx-auto">
-          <form onSubmit={handleSubmit} className="mb-8">
+        <div className="max-w-2xl mx-auto mb-12">
+          <form onSubmit={handleSubmit}>
             <div className="relative">
               <input
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 placeholder="Describe your idea"
-                className="w-full bg-white border border-gray-300 rounded-2xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent shadow-sm"
+                className="w-full bg-white border border-gray-300 rounded-xl px-6 py-4 text-lg focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
               />
               <button
                 type="submit"
-                className="absolute right-2 top-2 bg-teal-500 hover:bg-teal-600 text-white font-medium px-6 py-2 rounded-xl transition-colors"
+                className="absolute right-2 top-2 bg-gray-900 hover:bg-gray-800 text-white font-medium px-6 py-2 rounded-lg transition-colors"
               >
                 Submit
               </button>
             </div>
           </form>
+        </div>
 
-          {/* Example Messages */}
-          <div className="space-y-3 mb-12">
-            {heroData.exampleMessages.map((message, index) => (
-              <button
-                key={index}
-                onClick={() => handleExampleClick(message)}
-                className="block w-full text-left bg-teal-800 hover:bg-teal-700 border border-teal-700 rounded-2xl px-6 py-4 text-teal-100 hover:text-white transition-colors text-lg shadow-sm hover:shadow-md"
-              >
-                {message}
-              </button>
-            ))}
-          </div>
-
-          {/* Legal Text - Light Gray */}
-          <p className="text-sm text-teal-300 max-w-md mx-auto">
-            By sending a message, you agree to our Terms of Use and acknowledge that you have read and understand our Privacy Policy.
-          </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button 
+            onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+            className="bg-gray-900 hover:bg-gray-800 text-white font-medium py-3 px-8 rounded transition-colors"
+          >
+            {heroData.primaryButtonText}
+          </button>
+          
+          <button 
+            onClick={() => document.getElementById('demo')?.scrollIntoView({ behavior: 'smooth' })}
+            className="border border-gray-900 hover:bg-gray-50 text-gray-900 font-medium py-3 px-8 rounded transition-colors"
+          >
+            {heroData.secondaryButtonText}
+          </button>
         </div>
       </div>
     </section>
